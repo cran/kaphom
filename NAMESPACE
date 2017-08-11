@@ -1,0 +1,6 @@
+export(donnerhom)
+export(fleisshom)
+export(lscorehom)
+export(mlscorehom)
+export(pearsonhom)
+importFrom("stats", "pchisq")
