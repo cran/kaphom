@@ -102,7 +102,7 @@ fleisshom<-function(pp, pm, mm)
     print(paste0("Fleiss Homogeneity Test Statistic : ", eqfleiss))
     print(paste0("P-value : ", peqfleiss))
   }
-
+    print(paste0("Common Kappa Estimate : ", kapcom))
 }
 
 donnerhom<-function(pp, pm, mm)
@@ -118,8 +118,8 @@ donnerhom<-function(pp, pm, mm)
   }
 
   for(i in 1:j) {
-    prev <- (2*pp[i]+pm[i])/(2*tot[i])
-    kap <- ((4*pp[i]*mm[i])-(pm[i]*pm[i]))/((2*pp[i]+pm[i])*(2*mm[i]+pm[i]))
+    prev <- round((2*pp[i]+pm[i])/(2*tot[i]),digits = 3)
+    kap <- round(((4*pp[i]*mm[i])-(pm[i]*pm[i]))/((2*pp[i]+pm[i])*(2*mm[i]+pm[i])),digits = 3)
     prevs <- append(prevs,prev)
     kappas <- append(kappas,kap)
   }
@@ -142,20 +142,23 @@ donnerhom<-function(pp, pm, mm)
   comk <- comkpay / comkpayda
 
   for(i in 1:j) {
-    p2 <- (prevs[i]*prevs[i]) + (prevs[i]*(1-prevs[i])*kappas[i])
-    p2s <- append(p2s,signif(p2, digits = 2))
-    p1 <- (2*prevs[i])*(1 - prevs[i])*(1 - kappas[i])
-    p1s <- append(p1s,signif(p1, digits = 2))
-    p0 <- ((1 - prevs[i])*(1 - prevs[i])) + (prevs[i]*(1 - prevs[i])*kappas[i])
-    p0s <- append(p0s,signif(p0, digits = 2))
+    p2 <- prevs[i]^2 + prevs[i]*(1-prevs[i])*comk
+    p2s <- append(p2s,p2)
+    p1 <- (2*prevs[i])*(1 - prevs[i])*(1 - comk)
+    p1s <- append(p1s,p1)
+    p0 <- (1 - prevs[i])^2 + prevs[i]*(1 - prevs[i])*comk
+    p0s <- append(p0s,p0)
   }
 
   donnergof <- 0
 
   for(i in 1:j) {
-    donnergof <- donnergof + ((mm[i] - (tot[i]*p0s[i]))*(mm[i] - (tot[i]*p0s[i]))/(tot[i]*p0s[i]))
-    donnergof <- donnergof + ((pm[i] - (tot[i]*p1s[i]))*(pm[i] - (tot[i]*p1s[i]))/(tot[i]*p1s[i]))
-    donnergof <- donnergof + ((pp[i] - (tot[i]*p2s[i]))*(pp[i] - (tot[i]*p2s[i]))/(tot[i]*p2s[i]))
+    totg0 <- tot[i]*p0s[i]
+    donnergof <- donnergof + (((mm[i] - totg0)^2) / totg0)
+    totg1 <- tot[i]*p1s[i]
+    donnergof <- donnergof + (((pm[i] - totg1)^2) / totg1)
+    totg2 <- tot[i]*p2s[i]
+    donnergof <- donnergof + (((pp[i] - totg2)^2) / totg2)
   }
 
   pdonnergof <- pchisq(donnergof,(j-1), lower.tail=FALSE)
@@ -169,7 +172,7 @@ donnerhom<-function(pp, pm, mm)
     print(paste0("Donner GOF Homogeneity Test Statistic : ", donnergof))
     print(paste0("P-value : ", pdonnergof))
   }
-
+  print(paste0("Common Kappa Estimate : ", comk))
 }
 
 
@@ -271,7 +274,7 @@ lscorehom<-function(pp, pm, mm)
     print(paste0("Likelihood Score Homogeneity Test Statistic : ", lseq))
     print(paste0("P-value : ", plseq))
   }
-
+    print(paste0("Common Kappa Estimate : ", kapcom))
 }
 
 
@@ -310,7 +313,6 @@ mlscorehom<-function(pp, pm, mm)
   mlsvars <- NULL
   mlsskor <- 0
   mlsvar <- 0
-  comk <- signif(comk, digits = 3)
 
   for(i in 1:j) {
     mlsskor <- ((pp[i]/(prevs[i] + ((1-prevs[i])*comk))) + (mm[i]/((1-prevs[i]) + (prevs[i]*comk))) - tot[i])/(1-comk)
@@ -324,14 +326,14 @@ mlscorehom<-function(pp, pm, mm)
   mlstotvar <- 0
 
   for(i in 1:j) {
-    mlstotskor <- mlstotskor + (mlsskors[i]*mlsskors[i])
+    mlstotskor <- mlstotskor + mlsskors[i]
     mlstotvar <- mlstotvar + mlsvars[i]
   }
 
-  mlssecond <- mlstotskor/mlstotvar
+  mlssecond <- mlstotskor / mlstotvar
 
   for(i in 1:j) {
-    mls <- mls + ((mlsskors[i]*mlsskors[i])/mlsvars[i])
+    mls <- mls + (mlsskors[i]^2/mlsvars[i])
   }
 
   mls <- mls - mlssecond
@@ -347,7 +349,7 @@ mlscorehom<-function(pp, pm, mm)
     print(paste0("Modified Likelihood Score Homogeneity Test Statistic : ", mls))
     print(paste0("P-value : ", pmls))
   }
-
+    print(paste0("Common Kappa Estimate : ", comk))
 }
 
 
@@ -419,5 +421,5 @@ pearsonhom<-function(pp, pm, mm)
     print(paste0("Pearson GOF Homogeneity Test Statistic : ", pgof))
     print(paste0("P-value : ", ppgof))
   }
-
+    print(paste0("Common Kappa Estimate : ", kcom))
 }
